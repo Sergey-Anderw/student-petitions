@@ -90,7 +90,12 @@ Swagger is available in Development after the API starts.
 
 ## Database and Migrations
 
-Database setup and EF Core migration instructions will be added during implementation after the `DbContext` and entities are created.
+The API uses EF Core Code First with SQLite. The default local database is configured as `student-petitions.db`.
+
+```bash
+dotnet ef migrations add InitialCreate --project StudentPetitions.Api --startup-project StudentPetitions.Api --output-dir Data/Migrations
+dotnet ef database update --project StudentPetitions.Api --startup-project StudentPetitions.Api
+```
 
 ## Authentication
 

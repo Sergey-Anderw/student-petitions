@@ -45,6 +45,9 @@ ScaffoldingReadMe.txt
 # Others
 ~$*
 *~
+*.db
+*.db-shm
+*.db-wal
 CodeCoverage/
 .run-api.err.log
 .run-api.out.log
