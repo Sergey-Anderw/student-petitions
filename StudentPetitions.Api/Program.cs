@@ -1,22 +1,18 @@
-using Microsoft.EntityFrameworkCore;
-using StudentPetitions.Api.Data;
+using StudentPetitions.Api.Infrastructure.Extensions;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
-builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
-
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services
+    .AddApiControllers()
+    .AddPersistence(builder.Configuration)
+    .AddApplicationServices()
+    .AddApiDocumentation();
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseApiDocumentation();
+
+app.UseGlobalExceptionHandling();
 
 app.UseHttpsRedirection();
 

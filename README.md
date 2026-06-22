@@ -24,7 +24,7 @@ A REST API for managing student petitions such as course retakes, academic leave
 - Repository Pattern
 - AutoMapper
 - FluentValidation
-- Global exception handling middleware
+- ProblemDetails for unexpected exception handling
 - Serilog
 - Swagger / OpenAPI
 
@@ -38,14 +38,15 @@ The project follows the assignment-required single-project structure:
 - `Entities/` - EF Core entities
 - `Models/` - DTOs, request models, response models, and query/filter models
 
-Supporting folders may be added where useful:
+Supporting folders:
 
 - `Data/` - `AppDbContext`, EF Core configurations, and migrations
-- `Mapping/` - AutoMapper profile
-- `Validation/` - FluentValidation validators
-- `Middleware/` - global exception handling middleware
-- `Exceptions/` - custom application exceptions
-- `Extensions/` - dependency injection and middleware registration helpers
+- `Infrastructure/` - cross-cutting technical components
+- `Infrastructure/ExceptionHandling/` - unexpected exception handling with ProblemDetails
+- `Infrastructure/Mapping/` - AutoMapper profile
+- `Infrastructure/Extensions/` - dependency injection and middleware registration helpers
+
+Validators are placed near the request DTOs they validate under `Models/`, such as `Models/Students/`.
 
 ## API Overview
 
@@ -54,6 +55,8 @@ Students:
 - `POST /api/students` - create student
 - `GET /api/students/{id}` - get student by id
 - `GET /api/students` - get paginated students list
+
+Students API status: implemented.
 
 Petitions:
 
