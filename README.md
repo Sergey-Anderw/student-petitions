@@ -67,6 +67,8 @@ Petitions:
 - `POST /api/petitions/{id}/submit` - submit petition
 - `POST /api/petitions/{id}/review` - review petition
 
+Petitions create, get, list, and draft update endpoints are implemented. Submit and review endpoints are planned for the workflow story.
+
 ## Business Rules Summary
 
 - Student email must be unique.

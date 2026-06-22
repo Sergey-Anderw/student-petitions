@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using FluentValidation;
 using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Mvc;
@@ -18,7 +19,11 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddApiControllers(this IServiceCollection services)
     {
-        services.AddControllers();
+        services.AddControllers()
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+            });
         services.Configure<ApiBehaviorOptions>(options =>
         {
             options.InvalidModelStateResponseFactory = context =>
@@ -53,6 +58,8 @@ public static class ServiceCollectionExtensions
         services.AddAutoMapper(typeof(MappingProfile));
         services.AddScoped<IStudentRepository, StudentRepository>();
         services.AddScoped<IStudentService, StudentService>();
+        services.AddScoped<IPetitionRepository, PetitionRepository>();
+        services.AddScoped<IPetitionService, PetitionService>();
 
         return services;
     }

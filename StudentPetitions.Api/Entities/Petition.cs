@@ -2,7 +2,7 @@ namespace StudentPetitions.Api.Entities;
 
 public class Petition
 {
-    public Guid Id { get; set; }
+    public Guid Id { get; set; } = Guid.NewGuid();
 
     public Guid StudentId { get; set; }
 
