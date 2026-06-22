@@ -18,10 +18,13 @@ A REST API for managing student petitions such as course retakes, academic leave
 - ASP.NET Core 8 Web API
 - Controllers-based API endpoints
 - Entity Framework Core with Code First migrations
+- DbContext
 - SQLite database
+- Fluent API entity configuration
 - Repository Pattern
 - AutoMapper
 - FluentValidation
+- Global exception handling middleware
 - Serilog
 - Swagger / OpenAPI
 
@@ -69,12 +72,21 @@ Petitions:
 - Only Draft petitions can be updated.
 - Only Draft petitions can be submitted.
 - Review is allowed for Submitted or UnderReview petitions.
+- Review requires a review comment.
 - The review operation internally moves Submitted petitions to UnderReview before setting Approved or Rejected.
 - API date output should use `MM/dd/yyyy` format.
 
 ## Running Locally
 
-Local run instructions will be added during implementation after the ASP.NET Core project is created.
+From the repository root:
+
+```bash
+dotnet restore
+dotnet build
+dotnet run --project StudentPetitions.Api
+```
+
+Swagger is available in Development after the API starts.
 
 ## Database and Migrations
 
