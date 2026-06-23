@@ -17,13 +17,13 @@ public class PetitionsController(IPetitionService petitionService) : ControllerB
     {
         var result = await petitionService.CreateAsync(request, cancellationToken);
 
-        return result.Error switch
+        return result.Status switch
         {
-            CreatePetitionError.None => CreatedAtAction(
+            ResultStatus.Success => CreatedAtAction(
                 nameof(GetById),
-                new { id = result.Petition!.Id },
-                result.Petition),
-            CreatePetitionError.StudentNotFound => NotFound(ErrorResponse.NotFound("Student was not found.")),
+                new { id = result.Value!.Id },
+                result.Value),
+            ResultStatus.NotFound => NotFound(ErrorResponse.NotFound(result.ErrorMessage!)),
             _ => Problem(title: "Unexpected petition creation result.", statusCode: StatusCodes.Status500InternalServerError)
         };
     }
@@ -60,12 +60,11 @@ public class PetitionsController(IPetitionService petitionService) : ControllerB
     {
         var result = await petitionService.UpdateAsync(id, request, cancellationToken);
 
-        return result.Error switch
+        return result.Status switch
         {
-            UpdatePetitionError.None => Ok(result.Petition),
-            UpdatePetitionError.PetitionNotFound => NotFound(ErrorResponse.NotFound("Petition was not found.")),
-            UpdatePetitionError.PetitionIsNotDraft => Conflict(
-                ErrorResponse.Conflict("Only draft petitions can be updated.")),
+            ResultStatus.Success => Ok(result.Value),
+            ResultStatus.NotFound => NotFound(ErrorResponse.NotFound(result.ErrorMessage!)),
+            ResultStatus.Conflict => Conflict(ErrorResponse.Conflict(result.ErrorMessage!)),
             _ => Problem(title: "Unexpected petition update result.", statusCode: StatusCodes.Status500InternalServerError)
         };
     }

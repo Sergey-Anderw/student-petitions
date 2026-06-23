@@ -5,7 +5,7 @@ namespace StudentPetitions.Api.Services.Interfaces;
 
 public interface IPetitionService
 {
-    Task<CreatePetitionResult> CreateAsync(
+    Task<Result<PetitionResponse>> CreateAsync(
         CreatePetitionRequest request,
         CancellationToken cancellationToken = default);
 
@@ -15,7 +15,7 @@ public interface IPetitionService
         PetitionFilterRequest filter,
         CancellationToken cancellationToken = default);
 
-    Task<UpdatePetitionResult> UpdateAsync(
+    Task<Result<PetitionResponse>> UpdateAsync(
         Guid id,
         UpdatePetitionRequest request,
         CancellationToken cancellationToken = default);

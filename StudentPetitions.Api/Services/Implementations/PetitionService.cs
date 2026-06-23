@@ -13,7 +13,7 @@ public class PetitionService(
     IMapper mapper)
     : IPetitionService
 {
-    public async Task<CreatePetitionResult> CreateAsync(
+    public async Task<Result<PetitionResponse>> CreateAsync(
         CreatePetitionRequest request,
         CancellationToken cancellationToken = default)
     {
@@ -21,7 +21,7 @@ public class PetitionService(
 
         if (student is null)
         {
-            return new CreatePetitionResult(CreatePetitionError.StudentNotFound);
+            return Result<PetitionResponse>.NotFound("Student was not found.");
         }
 
         request.Title = request.Title.Trim();
@@ -33,9 +33,7 @@ public class PetitionService(
         await petitionRepository.AddAsync(petition, cancellationToken);
         await petitionRepository.SaveChangesAsync(cancellationToken);
 
-        return new CreatePetitionResult(
-            CreatePetitionError.None,
-            Petition: mapper.Map<PetitionResponse>(petition));
+        return Result<PetitionResponse>.Success(mapper.Map<PetitionResponse>(petition));
     }
 
     public async Task<PetitionResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
@@ -60,7 +58,7 @@ public class PetitionService(
             totalCount);
     }
 
-    public async Task<UpdatePetitionResult> UpdateAsync(
+    public async Task<Result<PetitionResponse>> UpdateAsync(
         Guid id,
         UpdatePetitionRequest request,
         CancellationToken cancellationToken = default)
@@ -69,12 +67,12 @@ public class PetitionService(
 
         if (petition is null)
         {
-            return new UpdatePetitionResult(UpdatePetitionError.PetitionNotFound);
+            return Result<PetitionResponse>.NotFound("Petition was not found.");
         }
 
         if (petition.Status != PetitionStatus.Draft)
         {
-            return new UpdatePetitionResult(UpdatePetitionError.PetitionIsNotDraft);
+            return Result<PetitionResponse>.Conflict("Only draft petitions can be updated.");
         }
 
         petition.PetitionType = request.PetitionType;
@@ -84,8 +82,6 @@ public class PetitionService(
 
         await petitionRepository.SaveChangesAsync(cancellationToken);
 
-        return new UpdatePetitionResult(
-            UpdatePetitionError.None,
-            Petition: mapper.Map<PetitionResponse>(petition));
+        return Result<PetitionResponse>.Success(mapper.Map<PetitionResponse>(petition));
     }
 }

@@ -11,19 +11,23 @@ public class StudentService(
     IStudentRepository studentRepository,
     IMapper mapper) : IStudentService
 {
-    public async Task<CreateStudentResult> CreateAsync(
+    public async Task<Result<StudentResponse>> CreateAsync(
         CreateStudentRequest request,
         CancellationToken cancellationToken = default)
     {
-        
+        request.FirstName = request.FirstName.Trim();
+        request.LastName = request.LastName.Trim();
+        request.Email = request.Email.Trim();
+        request.StudentNumber = request.StudentNumber.Trim();
+
         if (await studentRepository.ExistsByEmailAsync(request.Email, cancellationToken))
         {
-            return new CreateStudentResult(CreateStudentError.EmailAlreadyExists);
+            return Result<StudentResponse>.Conflict("A student with the same email already exists.");
         }
 
         if (await studentRepository.ExistsByStudentNumberAsync(request.StudentNumber, cancellationToken))
         {
-            return new CreateStudentResult(CreateStudentError.StudentNumberAlreadyExists);
+            return Result<StudentResponse>.Conflict("A student with the same student number already exists.");
         }
 
         var student = mapper.Map<Student>(request);
@@ -31,9 +35,7 @@ public class StudentService(
         await studentRepository.AddAsync(student, cancellationToken);
         await studentRepository.SaveChangesAsync(cancellationToken);
 
-        return new CreateStudentResult(
-            CreateStudentError.None,
-            Student: mapper.Map<StudentResponse>(student));
+        return Result<StudentResponse>.Success(mapper.Map<StudentResponse>(student));
     }
 
     public async Task<StudentResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)

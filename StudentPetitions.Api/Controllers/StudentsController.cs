@@ -17,16 +17,13 @@ public class StudentsController(IStudentService studentService) : ControllerBase
     {
         var result = await studentService.CreateAsync(request, cancellationToken);
 
-        return result.Error switch
+        return result.Status switch
         {
-            CreateStudentError.None => CreatedAtAction(
+            ResultStatus.Success => CreatedAtAction(
                 nameof(GetById),
-                new { id = result.Student!.Id },
-                result.Student),
-            CreateStudentError.EmailAlreadyExists => Conflict(
-                ErrorResponse.Conflict("A student with the same email already exists.")),
-            CreateStudentError.StudentNumberAlreadyExists => Conflict(
-                ErrorResponse.Conflict("A student with the same student number already exists.")),
+                new { id = result.Value!.Id },
+                result.Value),
+            ResultStatus.Conflict => Conflict(ErrorResponse.Conflict(result.ErrorMessage!)),
             _ => Problem(title: "Unexpected student creation result.", statusCode: StatusCodes.Status500InternalServerError)
         };
     }
