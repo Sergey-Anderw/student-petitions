@@ -186,6 +186,89 @@ public class PetitionServiceTests
             Times.Never);
     }
 
+    [Fact]
+    public async Task GetByIdAsync_ShouldThrowNotFoundException_WhenStudentRequestsAnotherStudentsPetition()
+    {
+        var ownStudentId = Guid.NewGuid();
+        var petition = CreatePetition(PetitionStatus.Draft);
+        petition.StudentId = Guid.NewGuid();
+        _currentUserService
+            .Setup(service => service.IsStudent)
+            .Returns(true);
+        _currentUserService
+            .Setup(service => service.StudentId)
+            .Returns(ownStudentId);
+        _petitionRepository
+            .Setup(repository => repository.GetByIdAsync(petition.Id, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(petition);
+
+        var service = CreateService();
+
+        await Assert.ThrowsAsync<NotFoundException>(() => service.GetByIdAsync(petition.Id));
+    }
+
+    [Fact]
+    public async Task GetFilteredAsync_ShouldForceStudentIdFilter_WhenUserIsStudent()
+    {
+        var ownStudentId = Guid.NewGuid();
+        var requestedStudentId = Guid.NewGuid();
+        var filter = new PetitionFilterRequest
+        {
+            StudentId = requestedStudentId
+        };
+        _currentUserService
+            .Setup(service => service.IsStudent)
+            .Returns(true);
+        _currentUserService
+            .Setup(service => service.StudentId)
+            .Returns(ownStudentId);
+        _petitionRepository
+            .Setup(repository => repository.GetFilteredAsync(
+                It.Is<PetitionFilterRequest>(request => request.StudentId == ownStudentId),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync([]);
+
+        var service = CreateService();
+
+        await service.GetFilteredAsync(filter);
+
+        Assert.Equal(ownStudentId, filter.StudentId);
+        _petitionRepository.Verify(
+            repository => repository.GetFilteredAsync(
+                It.Is<PetitionFilterRequest>(request => request.StudentId == ownStudentId),
+                It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [Fact]
+    public async Task CreateAsync_ShouldThrowBusinessRuleException_WhenStudentCreatesPetitionForAnotherStudent()
+    {
+        var ownStudentId = Guid.NewGuid();
+        var request = new CreatePetitionRequest
+        {
+            StudentId = Guid.NewGuid(),
+            PetitionType = PetitionType.CourseRetake,
+            Title = "Course retake request",
+            Description = "Need to retake the course."
+        };
+        _currentUserService
+            .Setup(service => service.IsStudent)
+            .Returns(true);
+        _currentUserService
+            .Setup(service => service.StudentId)
+            .Returns(ownStudentId);
+
+        var service = CreateService();
+
+        await Assert.ThrowsAsync<BusinessRuleException>(() => service.CreateAsync(request));
+        _studentRepository.Verify(
+            repository => repository.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        _petitionRepository.Verify(
+            repository => repository.AddAsync(It.IsAny<Petition>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private PetitionService CreateService()
     {
         return new PetitionService(

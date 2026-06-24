@@ -14,6 +14,7 @@ namespace StudentPetitions.Api.Tests;
 public class StudentServiceTests
 {
     private readonly Mock<IStudentRepository> _studentRepository = new();
+    private readonly Mock<ICurrentUserService> _currentUserService = new();
     private readonly IMapper _mapper = CreateMapper();
 
     [Fact]
@@ -126,9 +127,32 @@ public class StudentServiceTests
         Assert.Equal(2, result.TotalPages);
     }
 
+    [Fact]
+    public async Task GetByIdAsync_ShouldThrowNotFoundException_WhenStudentRequestsAnotherStudent()
+    {
+        var ownStudentId = Guid.NewGuid();
+        var requestedStudentId = Guid.NewGuid();
+        _currentUserService
+            .Setup(service => service.IsStudent)
+            .Returns(true);
+        _currentUserService
+            .Setup(service => service.StudentId)
+            .Returns(ownStudentId);
+
+        var service = CreateService();
+
+        await Assert.ThrowsAsync<NotFoundException>(() => service.GetByIdAsync(requestedStudentId));
+        _studentRepository.Verify(
+            repository => repository.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
     private StudentService CreateService()
     {
-        return new StudentService(_studentRepository.Object, _mapper);
+        return new StudentService(
+            _studentRepository.Object,
+            _currentUserService.Object,
+            _mapper);
     }
 
     private static IMapper CreateMapper()
