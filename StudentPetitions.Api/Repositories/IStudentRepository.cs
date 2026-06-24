@@ -1,9 +1,29 @@
 using Microsoft.EntityFrameworkCore;
 using StudentPetitions.Api.Data;
 using StudentPetitions.Api.Entities;
-using StudentPetitions.Api.Repositories.Interfaces;
 
-namespace StudentPetitions.Api.Repositories.Implementations;
+namespace StudentPetitions.Api.Repositories;
+
+public interface IStudentRepository
+{
+    Task<Student?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<Student>> GetPagedAsync(
+        int pageNumber,
+        int pageSize,
+        CancellationToken cancellationToken = default);
+
+    Task<int> CountAsync(CancellationToken cancellationToken = default);
+
+    Task<(bool EmailExists, bool StudentNumberExists)> GetUniquenessConflictAsync(
+        string email,
+        string studentNumber,
+        CancellationToken cancellationToken = default);
+
+    Task AddAsync(Student student, CancellationToken cancellationToken = default);
+
+    Task SaveChangesAsync(CancellationToken cancellationToken = default);
+}
 
 public class StudentRepository(AppDbContext dbContext) : IStudentRepository
 {

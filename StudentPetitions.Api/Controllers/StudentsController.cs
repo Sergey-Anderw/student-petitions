@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StudentPetitions.Api.Models.Common;
 using StudentPetitions.Api.Models.Students;
-using StudentPetitions.Api.Services.Interfaces;
+using StudentPetitions.Api.Services;
 
 namespace StudentPetitions.Api.Controllers;
 

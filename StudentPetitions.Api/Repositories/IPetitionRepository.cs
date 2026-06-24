@@ -2,9 +2,23 @@ using Microsoft.EntityFrameworkCore;
 using StudentPetitions.Api.Data;
 using StudentPetitions.Api.Entities;
 using StudentPetitions.Api.Models.Petitions;
-using StudentPetitions.Api.Repositories.Interfaces;
 
-namespace StudentPetitions.Api.Repositories.Implementations;
+namespace StudentPetitions.Api.Repositories;
+
+public interface IPetitionRepository
+{
+    Task<Petition?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+
+    Task<Petition?> GetTrackedByIdAsync(Guid id, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<Petition>> GetFilteredAsync(
+        PetitionFilterRequest filter,
+        CancellationToken cancellationToken = default);
+
+    Task AddAsync(Petition petition, CancellationToken cancellationToken = default);
+
+    Task SaveChangesAsync(CancellationToken cancellationToken = default);
+}
 
 public class PetitionRepository(AppDbContext dbContext) : IPetitionRepository
 {

@@ -1,7 +1,20 @@
 using System.Security.Claims;
-using StudentPetitions.Api.Services.Interfaces;
 
-namespace StudentPetitions.Api.Services.Implementations;
+namespace StudentPetitions.Api.Services;
+
+public interface ICurrentUserService
+{
+    string? UserName { get; }
+
+    string? Role { get; }
+
+    Guid? StudentId { get; }
+
+    bool IsStudent { get; }
+
+    bool IsReviewer { get; }
+}
+
 
 public class CurrentUserService(IHttpContextAccessor httpContextAccessor) : ICurrentUserService
 {

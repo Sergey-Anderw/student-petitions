@@ -5,18 +5,17 @@ using StudentPetitions.Api.Entities;
 using StudentPetitions.Api.Infrastructure.Exceptions;
 using StudentPetitions.Api.Infrastructure.Mapping;
 using StudentPetitions.Api.Models.Petitions;
-using StudentPetitions.Api.Repositories.Interfaces;
-using StudentPetitions.Api.Services.Implementations;
-using StudentPetitions.Api.Services.Interfaces;
+using StudentPetitions.Api.Repositories;
+using StudentPetitions.Api.Services;
 
 namespace StudentPetitions.Api.Tests;
 
 public class PetitionServiceTests
 {
-    private readonly Mock<IPetitionRepository> petitionRepository = new();
-    private readonly Mock<IStudentRepository> studentRepository = new();
-    private readonly Mock<ICurrentUserService> currentUserService = new();
-    private readonly IMapper mapper = CreateMapper();
+    private readonly Mock<IPetitionRepository> _petitionRepository = new();
+    private readonly Mock<IStudentRepository> _studentRepository = new();
+    private readonly Mock<ICurrentUserService> _currentUserService = new();
+    private readonly IMapper _mapper = CreateMapper();
 
     [Fact]
     public async Task CreateAsync_ShouldCreateDraftPetition_WhenStudentExists()
@@ -30,14 +29,14 @@ public class PetitionServiceTests
             Description = " Need to retake the course. "
         };
 
-        studentRepository
+        _studentRepository
             .Setup(repository => repository.GetByIdAsync(request.StudentId, It.IsAny<CancellationToken>()))
             .ReturnsAsync(new Student { Id = request.StudentId });
-        petitionRepository
+        _petitionRepository
             .Setup(repository => repository.AddAsync(It.IsAny<Petition>(), It.IsAny<CancellationToken>()))
             .Callback<Petition, CancellationToken>((petition, _) => capturedPetition = petition)
             .Returns(Task.CompletedTask);
-        petitionRepository
+        _petitionRepository
             .Setup(repository => repository.SaveChangesAsync(It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
@@ -53,10 +52,10 @@ public class PetitionServiceTests
         Assert.Equal("Course retake request", capturedPetition.Title);
         Assert.Equal("Need to retake the course.", capturedPetition.Description);
         Assert.Equal(PetitionStatus.Draft, capturedPetition.Status);
-        petitionRepository.Verify(
+        _petitionRepository.Verify(
             repository => repository.AddAsync(It.IsAny<Petition>(), It.IsAny<CancellationToken>()),
             Times.Once);
-        petitionRepository.Verify(
+        _petitionRepository.Verify(
             repository => repository.SaveChangesAsync(It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -72,10 +71,10 @@ public class PetitionServiceTests
             Description = " Need academic leave. "
         };
 
-        petitionRepository
+        _petitionRepository
             .Setup(repository => repository.GetTrackedByIdAsync(petition.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(petition);
-        petitionRepository
+        _petitionRepository
             .Setup(repository => repository.SaveChangesAsync(It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
@@ -91,7 +90,7 @@ public class PetitionServiceTests
         Assert.Equal("Academic leave", petition.Title);
         Assert.Equal("Need academic leave.", petition.Description);
         Assert.Equal(PetitionStatus.Draft, petition.Status);
-        petitionRepository.Verify(
+        _petitionRepository.Verify(
             repository => repository.SaveChangesAsync(It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -101,7 +100,7 @@ public class PetitionServiceTests
     {
         var petition = CreatePetition(PetitionStatus.Submitted);
 
-        petitionRepository
+        _petitionRepository
             .Setup(repository => repository.GetTrackedByIdAsync(petition.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(petition);
 
@@ -109,7 +108,7 @@ public class PetitionServiceTests
 
         await Assert.ThrowsAsync<BusinessRuleException>(
             () => service.UpdateAsync(petition.Id, CreateUpdatePetitionRequest()));
-        petitionRepository.Verify(
+        _petitionRepository.Verify(
             repository => repository.SaveChangesAsync(It.IsAny<CancellationToken>()),
             Times.Never);
     }
@@ -119,10 +118,10 @@ public class PetitionServiceTests
     {
         var petition = CreatePetition(PetitionStatus.Draft);
 
-        petitionRepository
+        _petitionRepository
             .Setup(repository => repository.GetTrackedByIdAsync(petition.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(petition);
-        petitionRepository
+        _petitionRepository
             .Setup(repository => repository.SaveChangesAsync(It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
@@ -132,7 +131,7 @@ public class PetitionServiceTests
 
         Assert.Equal(PetitionStatus.Submitted, result.Status);
         Assert.Equal(PetitionStatus.Submitted, petition.Status);
-        petitionRepository.Verify(
+        _petitionRepository.Verify(
             repository => repository.SaveChangesAsync(It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -148,10 +147,10 @@ public class PetitionServiceTests
             ReviewedBy = " Reviewer Admin "
         };
 
-        petitionRepository
+        _petitionRepository
             .Setup(repository => repository.GetTrackedByIdAsync(petition.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(petition);
-        petitionRepository
+        _petitionRepository
             .Setup(repository => repository.SaveChangesAsync(It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
@@ -164,7 +163,7 @@ public class PetitionServiceTests
         Assert.Equal("Approved after review.", petition.ReviewComment);
         Assert.Equal("Reviewer Admin", petition.ReviewedBy);
         Assert.NotNull(petition.ReviewedAt);
-        petitionRepository.Verify(
+        _petitionRepository.Verify(
             repository => repository.SaveChangesAsync(It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -174,7 +173,7 @@ public class PetitionServiceTests
     {
         var petition = CreatePetition(PetitionStatus.Draft);
 
-        petitionRepository
+        _petitionRepository
             .Setup(repository => repository.GetTrackedByIdAsync(petition.Id, It.IsAny<CancellationToken>()))
             .ReturnsAsync(petition);
 
@@ -182,7 +181,7 @@ public class PetitionServiceTests
 
         await Assert.ThrowsAsync<BusinessRuleException>(
             () => service.ReviewAsync(petition.Id, CreateReviewPetitionRequest()));
-        petitionRepository.Verify(
+        _petitionRepository.Verify(
             repository => repository.SaveChangesAsync(It.IsAny<CancellationToken>()),
             Times.Never);
     }
@@ -190,10 +189,10 @@ public class PetitionServiceTests
     private PetitionService CreateService()
     {
         return new PetitionService(
-            petitionRepository.Object,
-            studentRepository.Object,
-            currentUserService.Object,
-            mapper);
+            _petitionRepository.Object,
+            _studentRepository.Object,
+            _currentUserService.Object,
+            _mapper);
     }
 
     private static IMapper CreateMapper()

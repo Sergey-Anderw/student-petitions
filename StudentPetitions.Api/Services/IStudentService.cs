@@ -3,10 +3,20 @@ using StudentPetitions.Api.Entities;
 using StudentPetitions.Api.Infrastructure.Exceptions;
 using StudentPetitions.Api.Models.Common;
 using StudentPetitions.Api.Models.Students;
-using StudentPetitions.Api.Repositories.Interfaces;
-using StudentPetitions.Api.Services.Interfaces;
+using StudentPetitions.Api.Repositories;
 
-namespace StudentPetitions.Api.Services.Implementations;
+namespace StudentPetitions.Api.Services;
+
+public interface IStudentService
+{
+    Task<StudentResponse> CreateAsync(CreateStudentRequest request, CancellationToken cancellationToken = default);
+
+    Task<StudentResponse> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+
+    Task<PagedResponse<StudentResponse>> GetPagedAsync(
+        PaginationQuery query,
+        CancellationToken cancellationToken = default);
+}
 
 public class StudentService(
     IStudentRepository studentRepository,

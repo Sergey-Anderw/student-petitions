@@ -1,12 +1,16 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 using Microsoft.IdentityModel.Tokens;
 using StudentPetitions.Api.Infrastructure.Exceptions;
 using StudentPetitions.Api.Models.Auth;
-using StudentPetitions.Api.Services.Interfaces;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 
-namespace StudentPetitions.Api.Services.Implementations;
+namespace StudentPetitions.Api.Services;
+
+public interface IAuthService
+{
+    Task<LoginResponse> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default);
+}
 
 public class AuthService(IConfiguration configuration) : IAuthService
 {

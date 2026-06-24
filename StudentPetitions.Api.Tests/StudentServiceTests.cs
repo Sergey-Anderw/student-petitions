@@ -6,15 +6,15 @@ using StudentPetitions.Api.Infrastructure.Exceptions;
 using StudentPetitions.Api.Infrastructure.Mapping;
 using StudentPetitions.Api.Models.Common;
 using StudentPetitions.Api.Models.Students;
-using StudentPetitions.Api.Repositories.Interfaces;
-using StudentPetitions.Api.Services.Implementations;
+using StudentPetitions.Api.Repositories;
+using StudentPetitions.Api.Services;
 
 namespace StudentPetitions.Api.Tests;
 
 public class StudentServiceTests
 {
-    private readonly Mock<IStudentRepository> studentRepository = new();
-    private readonly IMapper mapper = CreateMapper();
+    private readonly Mock<IStudentRepository> _studentRepository = new();
+    private readonly IMapper _mapper = CreateMapper();
 
     [Fact]
     public async Task CreateAsync_ShouldCreateStudentAndTrimInput_WhenRequestIsValid()
@@ -28,19 +28,19 @@ public class StudentServiceTests
             StudentNumber = " ST-001 "
         };
 
-        studentRepository
+        _studentRepository
             .Setup(repository => repository.GetUniquenessConflictAsync(
                 "john@example.com",
                 "ST-001",
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync((false, false));
 
-        studentRepository
+        _studentRepository
             .Setup(repository => repository.AddAsync(It.IsAny<Student>(), It.IsAny<CancellationToken>()))
             .Callback<Student, CancellationToken>((student, _) => capturedStudent = student)
             .Returns(Task.CompletedTask);
 
-        studentRepository
+        _studentRepository
             .Setup(repository => repository.SaveChangesAsync(It.IsAny<CancellationToken>()))
             .Returns(Task.CompletedTask);
 
@@ -56,10 +56,10 @@ public class StudentServiceTests
         Assert.Equal("Smith", capturedStudent.LastName);
         Assert.Equal("john@example.com", capturedStudent.Email);
         Assert.Equal("ST-001", capturedStudent.StudentNumber);
-        studentRepository.Verify(
+        _studentRepository.Verify(
             repository => repository.AddAsync(It.IsAny<Student>(), It.IsAny<CancellationToken>()),
             Times.Once);
-        studentRepository.Verify(
+        _studentRepository.Verify(
             repository => repository.SaveChangesAsync(It.IsAny<CancellationToken>()),
             Times.Once);
     }
@@ -69,7 +69,7 @@ public class StudentServiceTests
     {
         var request = CreateStudentRequest();
 
-        studentRepository
+        _studentRepository
             .Setup(repository => repository.GetUniquenessConflictAsync(
                 request.Email,
                 request.StudentNumber,
@@ -80,16 +80,16 @@ public class StudentServiceTests
 
         await Assert.ThrowsAsync<ConflictException>(() => service.CreateAsync(request));
 
-        studentRepository.Verify(
+        _studentRepository.Verify(
             repository => repository.GetUniquenessConflictAsync(
                 request.Email,
                 request.StudentNumber,
                 It.IsAny<CancellationToken>()),
             Times.Once);
-        studentRepository.Verify(
+        _studentRepository.Verify(
             repository => repository.AddAsync(It.IsAny<Student>(), It.IsAny<CancellationToken>()),
             Times.Never);
-        studentRepository.Verify(
+        _studentRepository.Verify(
             repository => repository.SaveChangesAsync(It.IsAny<CancellationToken>()),
             Times.Never);
     }
@@ -108,10 +108,10 @@ public class StudentServiceTests
             CreateStudent()
         };
 
-        studentRepository
+        _studentRepository
             .Setup(repository => repository.GetPagedAsync(1, 2, It.IsAny<CancellationToken>()))
             .ReturnsAsync(students);
-        studentRepository
+        _studentRepository
             .Setup(repository => repository.CountAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(3);
 
@@ -128,7 +128,7 @@ public class StudentServiceTests
 
     private StudentService CreateService()
     {
-        return new StudentService(studentRepository.Object, mapper);
+        return new StudentService(_studentRepository.Object, _mapper);
     }
 
     private static IMapper CreateMapper()

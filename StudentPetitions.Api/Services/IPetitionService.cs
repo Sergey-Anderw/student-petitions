@@ -2,10 +2,34 @@ using AutoMapper;
 using StudentPetitions.Api.Entities;
 using StudentPetitions.Api.Infrastructure.Exceptions;
 using StudentPetitions.Api.Models.Petitions;
-using StudentPetitions.Api.Repositories.Interfaces;
-using StudentPetitions.Api.Services.Interfaces;
+using StudentPetitions.Api.Repositories;
 
-namespace StudentPetitions.Api.Services.Implementations;
+namespace StudentPetitions.Api.Services;
+
+public interface IPetitionService
+{
+    Task<PetitionResponse> CreateAsync(
+        CreatePetitionRequest request,
+        CancellationToken cancellationToken = default);
+
+    Task<PetitionResponse> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyCollection<PetitionResponse>> GetFilteredAsync(
+        PetitionFilterRequest filter,
+        CancellationToken cancellationToken = default);
+
+    Task<PetitionResponse> UpdateAsync(
+        Guid id,
+        UpdatePetitionRequest request,
+        CancellationToken cancellationToken = default);
+
+    Task<PetitionResponse> SubmitAsync(Guid id, CancellationToken cancellationToken = default);
+
+    Task<PetitionResponse> ReviewAsync(
+        Guid id,
+        ReviewPetitionRequest request,
+        CancellationToken cancellationToken = default);
+}
 
 public class PetitionService(
     IPetitionRepository petitionRepository,

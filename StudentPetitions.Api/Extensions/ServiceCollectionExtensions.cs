@@ -9,10 +9,8 @@ using Microsoft.OpenApi.Models;
 using StudentPetitions.Api.Data;
 using StudentPetitions.Api.Infrastructure.Mapping;
 using StudentPetitions.Api.Models.Students;
-using StudentPetitions.Api.Repositories.Implementations;
-using StudentPetitions.Api.Repositories.Interfaces;
-using StudentPetitions.Api.Services.Implementations;
-using StudentPetitions.Api.Services.Interfaces;
+using StudentPetitions.Api.Services;
+using StudentPetitions.Api.Repositories;
 
 namespace StudentPetitions.Api.Extensions;
 
