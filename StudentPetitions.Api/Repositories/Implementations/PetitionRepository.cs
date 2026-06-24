@@ -27,6 +27,7 @@ public class PetitionRepository(AppDbContext dbContext) : IPetitionRepository
     {
         return await ApplyFilters(dbContext.Petitions.AsNoTracking(), filter)
             .OrderByDescending(petition => petition.CreatedAt)
+            .ThenBy(petition => petition.Id)
             .ToListAsync(cancellationToken);
     }
 

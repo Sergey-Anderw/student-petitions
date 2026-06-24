@@ -132,7 +132,12 @@ public class PetitionService(
             petition.Status = PetitionStatus.UnderReview;
         }
 
-        petition.Status = request.Status;
+        petition.Status = request.Decision switch
+        {
+            PetitionReviewDecision.Approved => PetitionStatus.Approved,
+            PetitionReviewDecision.Rejected => PetitionStatus.Rejected,
+            _ => throw new BusinessRuleException("Review decision must be Approved or Rejected.")
+        };
         petition.ReviewedBy = request.ReviewedBy.Trim();
         petition.ReviewComment = request.ReviewComment.Trim();
         petition.ReviewedAt = now;

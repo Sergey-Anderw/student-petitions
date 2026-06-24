@@ -1,10 +1,8 @@
-using StudentPetitions.Api.Entities;
-
 namespace StudentPetitions.Api.Models.Petitions;
 
 public class ReviewPetitionRequest
 {
-    public PetitionStatus Status { get; set; }
+    public PetitionReviewDecision Decision { get; set; }
 
     public string ReviewedBy { get; set; } = string.Empty;
 

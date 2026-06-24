@@ -1,5 +1,4 @@
 using FluentValidation;
-using StudentPetitions.Api.Entities;
 
 namespace StudentPetitions.Api.Models.Petitions;
 
@@ -7,9 +6,8 @@ public class ReviewPetitionRequestValidator : AbstractValidator<ReviewPetitionRe
 {
     public ReviewPetitionRequestValidator()
     {
-        RuleFor(request => request.Status)
-            .Must(status => status is PetitionStatus.Approved or PetitionStatus.Rejected)
-            .WithMessage("Status must be Approved or Rejected.");
+        RuleFor(request => request.Decision)
+            .IsInEnum();
 
         RuleFor(request => request.ReviewedBy)
             .NotEmpty()
