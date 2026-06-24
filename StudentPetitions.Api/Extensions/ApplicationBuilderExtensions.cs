@@ -1,3 +1,6 @@
+using StudentPetitions.Api.Data;
+using StudentPetitions.Api.Data.Seed;
+
 namespace StudentPetitions.Api.Extensions;
 
 public static class ApplicationBuilderExtensions
@@ -11,5 +14,13 @@ public static class ApplicationBuilderExtensions
         }
 
         return app;
+    }
+
+    public static async Task SeedDemoDataAsync(this WebApplication app)
+    {
+        using var scope = app.Services.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        await DemoDataSeeder.SeedAsync(dbContext);
     }
 }

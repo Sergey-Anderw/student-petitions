@@ -105,24 +105,45 @@ dotnet ef migrations add InitialCreate --project StudentPetitions.Api --startup-
 dotnet ef database update --project StudentPetitions.Api --startup-project StudentPetitions.Api
 ```
 
-## Authentication
+## Demo Authentication and Seed Data
 
-JWT authentication is implemented with hardcoded demo users for the test assignment. This is not production authentication.
+This project uses hardcoded demo users for JWT authentication.
 
 Login endpoint:
 
 - `POST /api/auth/login`
 
-Demo users:
+| Username | Password | Role | Notes |
+| --- | --- | --- | --- |
+| `student` | `student123` | `Student` | Linked to seeded Demo Student |
+| `reviewer` | `reviewer123` | `Reviewer` | No database record |
 
-- `student` / `student123` - role `Student`
-- `reviewer` / `reviewer123` - role `Reviewer`
+The Student token contains a fixed `studentId` claim:
 
-Role rules:
+`11111111-1111-1111-1111-111111111111`
 
-- Students can create, update, submit, and view only their own petitions.
-- Reviewers can view and review petitions.
-- Swagger supports the `Authorize` button. Use the returned token as a Bearer token.
+A matching Student record is seeded on application startup if it does not already exist. This keeps petition ownership rules valid without introducing ASP.NET Identity or a Users table.
+
+Seeded Student:
+
+- Email: `student@example.com`
+- StudentNumber: `DEMO-STUDENT-001`
+
+The seed is idempotent: if the demo Student already exists, nothing is changed.
+
+Before first run, apply migrations if needed:
+
+```bash
+dotnet ef database update --project StudentPetitions.Api --startup-project StudentPetitions.Api
+```
+
+Then run the API:
+
+```bash
+dotnet run --project StudentPetitions.Api
+```
+
+Swagger supports the `Authorize` button. Use the returned token as a Bearer token.
 
 ## Error Handling
 

@@ -32,6 +32,8 @@ app.UseAuthorization();
 
 app.MapControllers();
 
+await app.SeedDemoDataAsync();
+
 app.Run();
 
 public partial class Program;

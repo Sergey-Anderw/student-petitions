@@ -1,4 +1,5 @@
 using Microsoft.IdentityModel.Tokens;
+using StudentPetitions.Api.Infrastructure.Auth;
 using StudentPetitions.Api.Infrastructure.Exceptions;
 using StudentPetitions.Api.Models.Auth;
 using System.IdentityModel.Tokens.Jwt;
@@ -56,33 +57,26 @@ public class AuthService(IConfiguration configuration) : IAuthService
 
     private AuthenticatedUser? GetAuthenticatedUser(LoginRequest request)
     {
-        if (request is { Username: "student", Password: "student123" })
+        if (request is { Username: DemoUsers.StudentUsername, Password: DemoUsers.StudentPassword })
         {
             return new AuthenticatedUser
             {
-                Username = "student",
-                Role = "Student",
-                StudentId = GetStudentUserId()
+                Username = DemoUsers.StudentUsername,
+                Role = DemoUsers.StudentRole,
+                StudentId = DemoUsers.StudentId
             };
         }
 
-        if (request is { Username: "reviewer", Password: "reviewer123" })
+        if (request is { Username: DemoUsers.ReviewerUsername, Password: DemoUsers.ReviewerPassword })
         {
             return new AuthenticatedUser
             {
-                Username = "reviewer",
-                Role = "Reviewer"
+                Username = DemoUsers.ReviewerUsername,
+                Role = DemoUsers.ReviewerRole
             };
         }
 
         return null;
-    }
-
-    private Guid GetStudentUserId()
-    {
-        var value = GetRequiredSetting("Jwt:StudentUserId");
-
-        return Guid.Parse(value);
     }
 
     private int GetExpirationMinutes()
