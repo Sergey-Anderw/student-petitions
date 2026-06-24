@@ -124,6 +124,11 @@ The Student token contains a fixed `studentId` claim:
 
 A matching Student record is seeded on application startup if it does not already exist. This keeps petition ownership rules valid without introducing ASP.NET Identity or a Users table.
 
+Access summary:
+
+- Student can access only their own student record and own petitions.
+- Reviewer can create/list students and view/review petitions.
+
 Seeded Student:
 
 - Email: `student@example.com`

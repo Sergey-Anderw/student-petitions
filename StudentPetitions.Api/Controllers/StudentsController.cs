@@ -8,10 +8,11 @@ namespace StudentPetitions.Api.Controllers;
 
 [ApiController]
 [Route("api/students")]
-[Authorize(Roles = "Student,Reviewer")]
+[Authorize]
 public sealed class StudentsController(IStudentService studentService) : ControllerBase
 {
     [HttpPost]
+    [Authorize(Roles = "Reviewer")]
     public async Task<ActionResult<StudentResponse>> Create(
         [FromBody]
         CreateStudentRequest request,
@@ -26,6 +27,7 @@ public sealed class StudentsController(IStudentService studentService) : Control
     }
 
     [HttpGet("{id:guid}")]
+    [Authorize(Roles = "Student,Reviewer")]
     public async Task<ActionResult<StudentResponse>> GetById(Guid id, CancellationToken cancellationToken)
     {
         var student = await studentService.GetByIdAsync(id, cancellationToken);
@@ -34,6 +36,7 @@ public sealed class StudentsController(IStudentService studentService) : Control
     }
 
     [HttpGet]
+    [Authorize(Roles = "Reviewer")]
     public async Task<ActionResult<PagedResponse<StudentResponse>>> GetPaged(
         [FromQuery] PaginationQuery query,
         CancellationToken cancellationToken)

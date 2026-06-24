@@ -20,6 +20,7 @@ public interface IStudentService
 
 public class StudentService(
     IStudentRepository studentRepository,
+    ICurrentUserService currentUserService,
     IMapper mapper) : IStudentService
 {
     public async Task<StudentResponse> CreateAsync(
@@ -56,6 +57,11 @@ public class StudentService(
 
     public async Task<StudentResponse> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
+        if (currentUserService.IsStudent && currentUserService.StudentId != id)
+        {
+            throw new NotFoundException("Student was not found.");
+        }
+
         var student = await studentRepository.GetByIdAsync(id, cancellationToken);
 
         if (student is null)
