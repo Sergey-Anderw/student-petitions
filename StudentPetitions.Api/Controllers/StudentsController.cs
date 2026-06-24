@@ -15,28 +15,18 @@ public class StudentsController(IStudentService studentService) : ControllerBase
         CreateStudentRequest request,
         CancellationToken cancellationToken)
     {
-        var result = await studentService.CreateAsync(request, cancellationToken);
+        var student = await studentService.CreateAsync(request, cancellationToken);
 
-        return result.Status switch
-        {
-            ResultStatus.Success => CreatedAtAction(
-                nameof(GetById),
-                new { id = result.Value!.Id },
-                result.Value),
-            ResultStatus.Conflict => Conflict(ErrorResponse.Conflict(result.ErrorMessage!)),
-            _ => Problem(title: "Unexpected student creation result.", statusCode: StatusCodes.Status500InternalServerError)
-        };
+        return CreatedAtAction(
+            nameof(GetById),
+            new { id = student.Id },
+            student);
     }
 
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<StudentResponse>> GetById(Guid id, CancellationToken cancellationToken)
     {
         var student = await studentService.GetByIdAsync(id, cancellationToken);
-
-        if (student is null)
-        {
-            return NotFound(ErrorResponse.NotFound("Student was not found."));
-        }
 
         return Ok(student);
     }

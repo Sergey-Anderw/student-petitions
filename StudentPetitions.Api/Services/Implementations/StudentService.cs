@@ -1,5 +1,6 @@
 using AutoMapper;
 using StudentPetitions.Api.Entities;
+using StudentPetitions.Api.Infrastructure.Exceptions;
 using StudentPetitions.Api.Models.Common;
 using StudentPetitions.Api.Models.Students;
 using StudentPetitions.Api.Repositories.Interfaces;
@@ -11,7 +12,7 @@ public class StudentService(
     IStudentRepository studentRepository,
     IMapper mapper) : IStudentService
 {
-    public async Task<Result<StudentResponse>> CreateAsync(
+    public async Task<StudentResponse> CreateAsync(
         CreateStudentRequest request,
         CancellationToken cancellationToken = default)
     {
@@ -22,12 +23,12 @@ public class StudentService(
 
         if (await studentRepository.ExistsByEmailAsync(request.Email, cancellationToken))
         {
-            return Result<StudentResponse>.Conflict("A student with the same email already exists.");
+            throw new ConflictException("A student with the same email already exists.");
         }
 
         if (await studentRepository.ExistsByStudentNumberAsync(request.StudentNumber, cancellationToken))
         {
-            return Result<StudentResponse>.Conflict("A student with the same student number already exists.");
+            throw new ConflictException("A student with the same student number already exists.");
         }
 
         var student = mapper.Map<Student>(request);
@@ -35,14 +36,19 @@ public class StudentService(
         await studentRepository.AddAsync(student, cancellationToken);
         await studentRepository.SaveChangesAsync(cancellationToken);
 
-        return Result<StudentResponse>.Success(mapper.Map<StudentResponse>(student));
+        return mapper.Map<StudentResponse>(student);
     }
 
-    public async Task<StudentResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<StudentResponse> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var student = await studentRepository.GetByIdAsync(id, cancellationToken);
 
-        return student is null ? null : mapper.Map<StudentResponse>(student);
+        if (student is null)
+        {
+            throw new NotFoundException("Student was not found.");
+        }
+
+        return mapper.Map<StudentResponse>(student);
     }
 
     public async Task<PagedResponse<StudentResponse>> GetPagedAsync(

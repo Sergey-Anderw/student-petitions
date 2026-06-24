@@ -1,5 +1,6 @@
 using AutoMapper;
 using StudentPetitions.Api.Entities;
+using StudentPetitions.Api.Infrastructure.Exceptions;
 using StudentPetitions.Api.Models.Common;
 using StudentPetitions.Api.Models.Petitions;
 using StudentPetitions.Api.Repositories.Interfaces;
@@ -13,7 +14,7 @@ public class PetitionService(
     IMapper mapper)
     : IPetitionService
 {
-    public async Task<Result<PetitionResponse>> CreateAsync(
+    public async Task<PetitionResponse> CreateAsync(
         CreatePetitionRequest request,
         CancellationToken cancellationToken = default)
     {
@@ -21,7 +22,7 @@ public class PetitionService(
 
         if (student is null)
         {
-            return Result<PetitionResponse>.NotFound("Student was not found.");
+            throw new NotFoundException("Student was not found.");
         }
 
         request.Title = request.Title.Trim();
@@ -33,14 +34,19 @@ public class PetitionService(
         await petitionRepository.AddAsync(petition, cancellationToken);
         await petitionRepository.SaveChangesAsync(cancellationToken);
 
-        return Result<PetitionResponse>.Success(mapper.Map<PetitionResponse>(petition));
+        return mapper.Map<PetitionResponse>(petition);
     }
 
-    public async Task<PetitionResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
+    public async Task<PetitionResponse> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var petition = await petitionRepository.GetByIdAsync(id, cancellationToken);
 
-        return petition is null ? null : mapper.Map<PetitionResponse>(petition);
+        if (petition is null)
+        {
+            throw new NotFoundException("Petition was not found.");
+        }
+
+        return mapper.Map<PetitionResponse>(petition);
     }
 
     public async Task<PagedResponse<PetitionResponse>> GetPagedAsync(
@@ -58,7 +64,7 @@ public class PetitionService(
             totalCount);
     }
 
-    public async Task<Result<PetitionResponse>> UpdateAsync(
+    public async Task<PetitionResponse> UpdateAsync(
         Guid id,
         UpdatePetitionRequest request,
         CancellationToken cancellationToken = default)
@@ -67,12 +73,12 @@ public class PetitionService(
 
         if (petition is null)
         {
-            return Result<PetitionResponse>.NotFound("Petition was not found.");
+            throw new NotFoundException("Petition was not found.");
         }
 
         if (petition.Status != PetitionStatus.Draft)
         {
-            return Result<PetitionResponse>.Conflict("Only draft petitions can be updated.");
+            throw new BusinessRuleException("Only draft petitions can be updated.");
         }
 
         petition.PetitionType = request.PetitionType;
@@ -82,6 +88,65 @@ public class PetitionService(
 
         await petitionRepository.SaveChangesAsync(cancellationToken);
 
-        return Result<PetitionResponse>.Success(mapper.Map<PetitionResponse>(petition));
+        return mapper.Map<PetitionResponse>(petition);
+    }
+
+    public async Task<PetitionResponse> SubmitAsync(
+        Guid id,
+        CancellationToken cancellationToken = default)
+    {
+        var petition = await petitionRepository.GetTrackedByIdAsync(id, cancellationToken);
+
+        if (petition is null)
+        {
+            throw new NotFoundException("Petition was not found.");
+        }
+
+        if (petition.Status != PetitionStatus.Draft)
+        {
+            throw new BusinessRuleException("Only draft petitions can be submitted.");
+        }
+
+        petition.Status = PetitionStatus.Submitted;
+        petition.UpdatedAt = DateTime.UtcNow;
+
+        await petitionRepository.SaveChangesAsync(cancellationToken);
+
+        return mapper.Map<PetitionResponse>(petition);
+    }
+
+    public async Task<PetitionResponse> ReviewAsync(
+        Guid id,
+        ReviewPetitionRequest request,
+        CancellationToken cancellationToken = default)
+    {
+        var petition = await petitionRepository.GetTrackedByIdAsync(id, cancellationToken);
+
+        if (petition is null)
+        {
+            throw new NotFoundException("Petition was not found.");
+        }
+
+        if (petition.Status != PetitionStatus.Submitted)
+        {
+            throw new BusinessRuleException("Only submitted petitions can be reviewed.");
+        }
+
+        var now = DateTime.UtcNow;
+
+        if (petition.Status == PetitionStatus.Submitted)
+        {
+            petition.Status = PetitionStatus.UnderReview;
+        }
+
+        petition.Status = request.Status;
+        petition.ReviewedBy = request.ReviewedBy.Trim();
+        petition.ReviewComment = request.ReviewComment.Trim();
+        petition.ReviewedAt = now;
+        petition.UpdatedAt = now;
+
+        await petitionRepository.SaveChangesAsync(cancellationToken);
+
+        return mapper.Map<PetitionResponse>(petition);
     }
 }

@@ -5,18 +5,25 @@ namespace StudentPetitions.Api.Services.Interfaces;
 
 public interface IPetitionService
 {
-    Task<Result<PetitionResponse>> CreateAsync(
+    Task<PetitionResponse> CreateAsync(
         CreatePetitionRequest request,
         CancellationToken cancellationToken = default);
 
-    Task<PetitionResponse?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+    Task<PetitionResponse> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     Task<PagedResponse<PetitionResponse>> GetPagedAsync(
         PetitionFilterRequest filter,
         CancellationToken cancellationToken = default);
 
-    Task<Result<PetitionResponse>> UpdateAsync(
+    Task<PetitionResponse> UpdateAsync(
         Guid id,
         UpdatePetitionRequest request,
+        CancellationToken cancellationToken = default);
+
+    Task<PetitionResponse> SubmitAsync(Guid id, CancellationToken cancellationToken = default);
+
+    Task<PetitionResponse> ReviewAsync(
+        Guid id,
+        ReviewPetitionRequest request,
         CancellationToken cancellationToken = default);
 }

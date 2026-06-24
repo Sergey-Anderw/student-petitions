@@ -1,4 +1,5 @@
-using StudentPetitions.Api.Infrastructure.Extensions;
+using StudentPetitions.Api.Extensions;
+using StudentPetitions.Api.Infrastructure.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,7 +13,7 @@ var app = builder.Build();
 
 app.UseApiDocumentation();
 
-app.UseGlobalExceptionHandling();
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
 

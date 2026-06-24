@@ -11,7 +11,7 @@ A REST API for managing student petitions such as course retakes, academic leave
 - Draft-only petition updates
 - Petition submission and review workflow
 - Swagger API documentation
-- Structured console and file logging
+- Application exception handling middleware
 
 ## Tech Stack
 
@@ -24,8 +24,7 @@ A REST API for managing student petitions such as course retakes, academic leave
 - Repository Pattern
 - AutoMapper
 - FluentValidation
-- ProblemDetails for unexpected exception handling
-- Serilog
+- Global exception handling middleware returning `ErrorResponse`
 - Swagger / OpenAPI
 
 ## Architecture Overview
@@ -42,9 +41,10 @@ Supporting folders:
 
 - `Data/` - `AppDbContext`, EF Core configurations, and migrations
 - `Infrastructure/` - cross-cutting technical components
-- `Infrastructure/ExceptionHandling/` - unexpected exception handling with ProblemDetails
+- `Infrastructure/Exceptions/` - custom application exceptions
+- `Infrastructure/Middleware/` - global exception handling middleware
 - `Infrastructure/Mapping/` - AutoMapper profile
-- `Infrastructure/Extensions/` - dependency injection and middleware registration helpers
+- `Extensions/` - dependency injection and middleware registration helpers
 
 Validators are placed near the request DTOs they validate under `Models/`, such as `Models/Students/`.
 
@@ -67,7 +67,7 @@ Petitions:
 - `POST /api/petitions/{id}/submit` - submit petition
 - `POST /api/petitions/{id}/review` - review petition
 
-Petitions create, get, list, and draft update endpoints are implemented. Submit and review endpoints are planned for the workflow story.
+Petitions create, get, list, draft update, submit, and review endpoints are implemented.
 
 ## Business Rules Summary
 
@@ -76,7 +76,7 @@ Petitions create, get, list, and draft update endpoints are implemented. Submit 
 - New petitions start in Draft status.
 - Only Draft petitions can be updated.
 - Only Draft petitions can be submitted.
-- Review is allowed for Submitted or UnderReview petitions.
+- Review is allowed for Submitted petitions.
 - Review requires a review comment.
 - The review operation internally moves Submitted petitions to UnderReview before setting Approved or Rejected.
 - API date output should use `MM/dd/yyyy` format.
@@ -105,3 +105,15 @@ dotnet ef database update --project StudentPetitions.Api --startup-project Stude
 ## Authentication
 
 JWT authentication is planned as an optional enhancement if included during implementation.
+
+## Error Handling
+
+Services return response DTOs directly on success. Expected API errors are represented by custom application exceptions:
+
+- `NotFoundException`
+- `ConflictException`
+- `BusinessRuleException`
+
+`ExceptionHandlingMiddleware` maps these exceptions to `ErrorResponse`. The project does not use `Result<T>`, operation-specific service result records, `ProblemDetails`, or `IExceptionHandler`.
+
+DTO validation is handled by FluentValidation auto-validation. Invalid model state uses the default ASP.NET Core validation response.

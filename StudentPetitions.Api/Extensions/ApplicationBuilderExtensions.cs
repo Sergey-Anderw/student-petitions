@@ -1,4 +1,4 @@
-namespace StudentPetitions.Api.Infrastructure.Extensions;
+namespace StudentPetitions.Api.Extensions;
 
 public static class ApplicationBuilderExtensions
 {
@@ -9,13 +9,6 @@ public static class ApplicationBuilderExtensions
             app.UseSwagger();
             app.UseSwaggerUI();
         }
-
-        return app;
-    }
-
-    public static IApplicationBuilder UseGlobalExceptionHandling(this IApplicationBuilder app)
-    {
-        app.UseExceptionHandler();
 
         return app;
     }
