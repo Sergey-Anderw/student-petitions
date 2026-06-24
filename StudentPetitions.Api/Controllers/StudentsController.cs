@@ -9,7 +9,7 @@ namespace StudentPetitions.Api.Controllers;
 [ApiController]
 [Route("api/students")]
 [Authorize(Roles = "Student,Reviewer")]
-public class StudentsController(IStudentService studentService) : ControllerBase
+public sealed class StudentsController(IStudentService studentService) : ControllerBase
 {
     [HttpPost]
     public async Task<ActionResult<StudentResponse>> Create(

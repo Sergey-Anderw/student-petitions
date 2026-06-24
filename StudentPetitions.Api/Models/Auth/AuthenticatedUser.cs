@@ -1,6 +1,6 @@
 namespace StudentPetitions.Api.Models.Auth;
 
-public class AuthenticatedUser
+public sealed record AuthenticatedUser
 {
     public string Username { get; set; } = string.Empty;
 

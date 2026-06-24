@@ -1,9 +1,3 @@
 namespace StudentPetitions.Api.Infrastructure.Exceptions;
 
-public class UnauthorizedException : Exception
-{
-    public UnauthorizedException(string message)
-        : base(message)
-    {
-    }
-}
+public sealed class UnauthorizedException(string message) : Exception(message);

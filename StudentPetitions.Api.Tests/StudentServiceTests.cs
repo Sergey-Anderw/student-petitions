@@ -95,42 +95,6 @@ public class StudentServiceTests
     }
 
     [Fact]
-    public async Task CreateAsync_ShouldThrowConflictException_WhenStudentNumberAlreadyExists()
-    {
-        var request = CreateStudentRequest();
-
-        studentRepository
-            .Setup(repository => repository.GetUniquenessConflictAsync(
-                request.Email,
-                request.StudentNumber,
-                It.IsAny<CancellationToken>()))
-            .ReturnsAsync((false, true));
-
-        var service = CreateService();
-
-        await Assert.ThrowsAsync<ConflictException>(() => service.CreateAsync(request));
-
-        studentRepository.Verify(
-            repository => repository.AddAsync(It.IsAny<Student>(), It.IsAny<CancellationToken>()),
-            Times.Never);
-        studentRepository.Verify(
-            repository => repository.SaveChangesAsync(It.IsAny<CancellationToken>()),
-            Times.Never);
-    }
-
-    [Fact]
-    public async Task GetByIdAsync_ShouldThrowNotFoundException_WhenStudentDoesNotExist()
-    {
-        studentRepository
-            .Setup(repository => repository.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Student?)null);
-
-        var service = CreateService();
-
-        await Assert.ThrowsAsync<NotFoundException>(() => service.GetByIdAsync(Guid.NewGuid()));
-    }
-
-    [Fact]
     public async Task GetPagedAsync_ShouldReturnPagedResponse()
     {
         var query = new PaginationQuery

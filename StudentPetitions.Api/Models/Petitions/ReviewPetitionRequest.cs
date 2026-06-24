@@ -1,6 +1,6 @@
 namespace StudentPetitions.Api.Models.Petitions;
 
-public class ReviewPetitionRequest
+public sealed record ReviewPetitionRequest
 {
     public PetitionReviewDecision Decision { get; set; }
 

@@ -1,6 +1,6 @@
 namespace StudentPetitions.Api.Models.Auth;
 
-public class LoginResponse
+public sealed record LoginResponse
 {
     public string AccessToken { get; set; } = string.Empty;
 

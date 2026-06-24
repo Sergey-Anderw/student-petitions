@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace StudentPetitions.Api.Models.Petitions;
 
-public class CreatePetitionRequestValidator : AbstractValidator<CreatePetitionRequest>
+public sealed class CreatePetitionRequestValidator : AbstractValidator<CreatePetitionRequest>
 {
     public CreatePetitionRequestValidator()
     {

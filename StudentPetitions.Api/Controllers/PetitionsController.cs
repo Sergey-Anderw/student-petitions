@@ -7,7 +7,7 @@ namespace StudentPetitions.Api.Controllers;
 
 [ApiController]
 [Route("api/petitions")]
-public class PetitionsController(IPetitionService petitionService) : ControllerBase
+public sealed class PetitionsController(IPetitionService petitionService) : ControllerBase
 {
     [HttpPost]
     [Authorize(Roles = "Student")]

@@ -1,6 +1,6 @@
 namespace StudentPetitions.Api.Models.Auth;
 
-public class LoginRequest
+public sealed record LoginRequest
 {
     public string Username { get; set; } = string.Empty;
 

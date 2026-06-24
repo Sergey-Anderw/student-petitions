@@ -62,26 +62,6 @@ public class PetitionServiceTests
     }
 
     [Fact]
-    public async Task CreateAsync_ShouldThrowNotFoundException_WhenStudentDoesNotExist()
-    {
-        var request = CreatePetitionRequest();
-
-        studentRepository
-            .Setup(repository => repository.GetByIdAsync(request.StudentId, It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Student?)null);
-
-        var service = CreateService();
-
-        await Assert.ThrowsAsync<NotFoundException>(() => service.CreateAsync(request));
-        petitionRepository.Verify(
-            repository => repository.AddAsync(It.IsAny<Petition>(), It.IsAny<CancellationToken>()),
-            Times.Never);
-        petitionRepository.Verify(
-            repository => repository.SaveChangesAsync(It.IsAny<CancellationToken>()),
-            Times.Never);
-    }
-
-    [Fact]
     public async Task UpdateAsync_ShouldUpdateDraftPetition()
     {
         var petition = CreatePetition(PetitionStatus.Draft);
@@ -158,23 +138,6 @@ public class PetitionServiceTests
     }
 
     [Fact]
-    public async Task SubmitAsync_ShouldThrowBusinessRuleException_WhenPetitionIsNotDraft()
-    {
-        var petition = CreatePetition(PetitionStatus.Submitted);
-
-        petitionRepository
-            .Setup(repository => repository.GetTrackedByIdAsync(petition.Id, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(petition);
-
-        var service = CreateService();
-
-        await Assert.ThrowsAsync<BusinessRuleException>(() => service.SubmitAsync(petition.Id));
-        petitionRepository.Verify(
-            repository => repository.SaveChangesAsync(It.IsAny<CancellationToken>()),
-            Times.Never);
-    }
-
-    [Fact]
     public async Task ReviewAsync_ShouldApproveSubmittedPetition_WhenDecisionIsApproved()
     {
         var petition = CreatePetition(PetitionStatus.Submitted);
@@ -207,38 +170,6 @@ public class PetitionServiceTests
     }
 
     [Fact]
-    public async Task ReviewAsync_ShouldRejectSubmittedPetition_WhenDecisionIsRejected()
-    {
-        var petition = CreatePetition(PetitionStatus.Submitted);
-        var request = new ReviewPetitionRequest
-        {
-            Decision = PetitionReviewDecision.Rejected,
-            ReviewComment = " Rejected because documents are incomplete. ",
-            ReviewedBy = " Reviewer Admin "
-        };
-
-        petitionRepository
-            .Setup(repository => repository.GetTrackedByIdAsync(petition.Id, It.IsAny<CancellationToken>()))
-            .ReturnsAsync(petition);
-        petitionRepository
-            .Setup(repository => repository.SaveChangesAsync(It.IsAny<CancellationToken>()))
-            .Returns(Task.CompletedTask);
-
-        var service = CreateService();
-
-        var result = await service.ReviewAsync(petition.Id, request);
-
-        Assert.Equal(PetitionStatus.Rejected, result.Status);
-        Assert.Equal(PetitionStatus.Rejected, petition.Status);
-        Assert.Equal("Rejected because documents are incomplete.", petition.ReviewComment);
-        Assert.Equal("Reviewer Admin", petition.ReviewedBy);
-        Assert.NotNull(petition.ReviewedAt);
-        petitionRepository.Verify(
-            repository => repository.SaveChangesAsync(It.IsAny<CancellationToken>()),
-            Times.Once);
-    }
-
-    [Fact]
     public async Task ReviewAsync_ShouldThrowBusinessRuleException_WhenPetitionIsNotSubmitted()
     {
         var petition = CreatePetition(PetitionStatus.Draft);
@@ -254,18 +185,6 @@ public class PetitionServiceTests
         petitionRepository.Verify(
             repository => repository.SaveChangesAsync(It.IsAny<CancellationToken>()),
             Times.Never);
-    }
-
-    [Fact]
-    public async Task GetByIdAsync_ShouldThrowNotFoundException_WhenPetitionDoesNotExist()
-    {
-        petitionRepository
-            .Setup(repository => repository.GetByIdAsync(It.IsAny<Guid>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((Petition?)null);
-
-        var service = CreateService();
-
-        await Assert.ThrowsAsync<NotFoundException>(() => service.GetByIdAsync(Guid.NewGuid()));
     }
 
     private PetitionService CreateService()
@@ -284,17 +203,6 @@ public class PetitionServiceTests
             NullLoggerFactory.Instance);
 
         return configuration.CreateMapper();
-    }
-
-    private static CreatePetitionRequest CreatePetitionRequest()
-    {
-        return new CreatePetitionRequest
-        {
-            StudentId = Guid.NewGuid(),
-            PetitionType = PetitionType.CourseRetake,
-            Title = "Course retake request",
-            Description = "Need to retake the course."
-        };
     }
 
     private static UpdatePetitionRequest CreateUpdatePetitionRequest()

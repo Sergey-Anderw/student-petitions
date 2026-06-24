@@ -2,7 +2,7 @@ using FluentValidation;
 
 namespace StudentPetitions.Api.Models.Petitions;
 
-public class UpdatePetitionRequestValidator : AbstractValidator<UpdatePetitionRequest>
+public sealed class UpdatePetitionRequestValidator : AbstractValidator<UpdatePetitionRequest>
 {
     public UpdatePetitionRequestValidator()
     {

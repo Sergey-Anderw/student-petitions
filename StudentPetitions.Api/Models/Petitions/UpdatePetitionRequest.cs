@@ -2,7 +2,7 @@ using StudentPetitions.Api.Entities;
 
 namespace StudentPetitions.Api.Models.Petitions;
 
-public class UpdatePetitionRequest
+public sealed record UpdatePetitionRequest
 {
     public PetitionType PetitionType { get; set; }
 

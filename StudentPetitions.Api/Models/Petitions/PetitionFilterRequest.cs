@@ -2,7 +2,7 @@ using StudentPetitions.Api.Entities;
 
 namespace StudentPetitions.Api.Models.Petitions;
 
-public sealed class PetitionFilterRequest
+public sealed record PetitionFilterRequest
 {
     public PetitionStatus? Status { get; set; }
 

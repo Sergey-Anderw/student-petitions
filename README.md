@@ -27,6 +27,7 @@ A REST API for managing student petitions such as course retakes, academic leave
 - FluentValidation
 - JWT Bearer authentication
 - Global exception handling middleware returning `ErrorResponse`
+- Serilog console and rolling file logging
 - Swagger / OpenAPI
 
 ## Architecture Overview
@@ -138,3 +139,9 @@ DTO validation is handled by FluentValidation auto-validation. Invalid model sta
 ## Date Formatting
 
 API response date formatting is centralized in `DateFormats.ApiDate` and applied in AutoMapper response mappings. The database stores date values as `DateTime` / `DateTime?`, not formatted strings.
+
+## Logging
+
+Serilog is configured as the application logger. Logs are written to the console and to daily rolling files at `Logs/student-petitions-.log`, with the last 7 files retained.
+
+Request logging is enabled for API requests. Sensitive values such as passwords and JWT tokens are not logged.

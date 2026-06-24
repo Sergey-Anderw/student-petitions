@@ -1,6 +1,6 @@
 namespace StudentPetitions.Api.Models.Students;
 
-public class StudentResponse
+public sealed record StudentResponse
 {
     public Guid Id { get; set; }
 

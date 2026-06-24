@@ -1,6 +1,6 @@
 namespace StudentPetitions.Api.Models.Students;
 
-public class CreateStudentRequest
+public sealed record CreateStudentRequest
 {
     public string FirstName { get; set; } = string.Empty;
 

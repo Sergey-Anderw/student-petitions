@@ -1,6 +1,6 @@
 namespace StudentPetitions.Api.Models.Common;
 
-public sealed class PaginationQuery
+public sealed record PaginationQuery
 {
     public const int MaxPageSize = 100;
     private int _pageNumber = 1;

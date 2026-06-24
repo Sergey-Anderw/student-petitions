@@ -1,9 +1,3 @@
 namespace StudentPetitions.Api.Infrastructure.Exceptions;
 
-public class BusinessRuleException : Exception
-{
-    public BusinessRuleException(string message)
-        : base(message)
-    {
-    }
-}
+public sealed class BusinessRuleException(string message) : Exception(message);

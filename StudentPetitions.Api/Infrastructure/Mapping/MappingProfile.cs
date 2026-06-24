@@ -7,7 +7,7 @@ using StudentPetitions.Api.Models.Students;
 
 namespace StudentPetitions.Api.Infrastructure.Mapping;
 
-public class MappingProfile : Profile
+public sealed class MappingProfile : Profile
 {
     public MappingProfile()
     {

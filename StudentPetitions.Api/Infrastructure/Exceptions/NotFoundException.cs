@@ -1,9 +1,3 @@
 namespace StudentPetitions.Api.Infrastructure.Exceptions;
 
-public class NotFoundException : Exception
-{
-    public NotFoundException(string message)
-        : base(message)
-    {
-    }
-}
+public sealed class NotFoundException(string message) : Exception(message);

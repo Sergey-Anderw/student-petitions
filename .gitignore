@@ -51,6 +51,7 @@ ScaffoldingReadMe.txt
 CodeCoverage/
 .run-api.err.log
 .run-api.out.log
+*.log
 
 # MSBuild Binary and Structured Log
 *.binlog

@@ -2,7 +2,7 @@ using StudentPetitions.Api.Entities;
 
 namespace StudentPetitions.Api.Models.Petitions;
 
-public class PetitionResponse
+public sealed record PetitionResponse
 {
     public Guid Id { get; set; }
 

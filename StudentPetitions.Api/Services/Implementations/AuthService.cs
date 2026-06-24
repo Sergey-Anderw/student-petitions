@@ -52,7 +52,7 @@ public class AuthService(IConfiguration configuration) : IAuthService
 
     private AuthenticatedUser? GetAuthenticatedUser(LoginRequest request)
     {
-        if (request.Username == "student" && request.Password == "student123")
+        if (request is { Username: "student", Password: "student123" })
         {
             return new AuthenticatedUser
             {
@@ -62,7 +62,7 @@ public class AuthService(IConfiguration configuration) : IAuthService
             };
         }
 
-        if (request.Username == "reviewer" && request.Password == "reviewer123")
+        if (request is { Username: "reviewer", Password: "reviewer123" })
         {
             return new AuthenticatedUser
             {

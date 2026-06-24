@@ -4,7 +4,7 @@ using StudentPetitions.Api.Entities;
 
 namespace StudentPetitions.Api.Data.Configurations;
 
-public class PetitionConfiguration : IEntityTypeConfiguration<Petition>
+public sealed class PetitionConfiguration : IEntityTypeConfiguration<Petition>
 {
     public void Configure(EntityTypeBuilder<Petition> builder)
     {
