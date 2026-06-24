@@ -13,9 +13,10 @@ public interface IStudentRepository
 
     Task<int> CountAsync(CancellationToken cancellationToken = default);
 
-    Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default);
-
-    Task<bool> ExistsByStudentNumberAsync(string studentNumber, CancellationToken cancellationToken = default);
+    Task<(bool EmailExists, bool StudentNumberExists)> GetUniquenessConflictAsync(
+        string email,
+        string studentNumber,
+        CancellationToken cancellationToken = default);
 
     Task AddAsync(Student student, CancellationToken cancellationToken = default);
 

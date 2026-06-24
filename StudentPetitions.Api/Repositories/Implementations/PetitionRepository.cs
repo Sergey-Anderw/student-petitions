@@ -21,21 +21,13 @@ public class PetitionRepository(AppDbContext dbContext) : IPetitionRepository
             .FirstOrDefaultAsync(petition => petition.Id == id, cancellationToken);
     }
 
-    public async Task<IReadOnlyCollection<Petition>> GetPagedAsync(
+    public async Task<IReadOnlyCollection<Petition>> GetFilteredAsync(
         PetitionFilterRequest filter,
         CancellationToken cancellationToken = default)
     {
         return await ApplyFilters(dbContext.Petitions.AsNoTracking(), filter)
             .OrderByDescending(petition => petition.CreatedAt)
-            .Skip((filter.PageNumber - 1) * filter.PageSize)
-            .Take(filter.PageSize)
             .ToListAsync(cancellationToken);
-    }
-
-    public async Task<int> CountAsync(PetitionFilterRequest filter, CancellationToken cancellationToken = default)
-    {
-        return await ApplyFilters(dbContext.Petitions.AsNoTracking(), filter)
-            .CountAsync(cancellationToken);
     }
 
     public async Task AddAsync(Petition petition, CancellationToken cancellationToken = default)

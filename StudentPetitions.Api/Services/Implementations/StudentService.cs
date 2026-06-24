@@ -21,12 +21,17 @@ public class StudentService(
         request.Email = request.Email.Trim();
         request.StudentNumber = request.StudentNumber.Trim();
 
-        if (await studentRepository.ExistsByEmailAsync(request.Email, cancellationToken))
+        var conflict = await studentRepository.GetUniquenessConflictAsync(
+            request.Email,
+            request.StudentNumber,
+            cancellationToken);
+
+        if (conflict.EmailExists)
         {
             throw new ConflictException("A student with the same email already exists.");
         }
 
-        if (await studentRepository.ExistsByStudentNumberAsync(request.StudentNumber, cancellationToken))
+        if (conflict.StudentNumberExists)
         {
             throw new ConflictException("A student with the same student number already exists.");
         }

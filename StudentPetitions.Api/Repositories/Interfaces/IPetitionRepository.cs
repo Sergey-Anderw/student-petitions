@@ -9,11 +9,9 @@ public interface IPetitionRepository
 
     Task<Petition?> GetTrackedByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyCollection<Petition>> GetPagedAsync(
+    Task<IReadOnlyCollection<Petition>> GetFilteredAsync(
         PetitionFilterRequest filter,
         CancellationToken cancellationToken = default);
-
-    Task<int> CountAsync(PetitionFilterRequest filter, CancellationToken cancellationToken = default);
 
     Task AddAsync(Petition petition, CancellationToken cancellationToken = default);
 

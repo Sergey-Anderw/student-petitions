@@ -1,7 +1,6 @@
 using AutoMapper;
 using StudentPetitions.Api.Entities;
 using StudentPetitions.Api.Infrastructure.Exceptions;
-using StudentPetitions.Api.Models.Common;
 using StudentPetitions.Api.Models.Petitions;
 using StudentPetitions.Api.Repositories.Interfaces;
 using StudentPetitions.Api.Services.Interfaces;
@@ -49,19 +48,13 @@ public class PetitionService(
         return mapper.Map<PetitionResponse>(petition);
     }
 
-    public async Task<PagedResponse<PetitionResponse>> GetPagedAsync(
+    public async Task<IReadOnlyCollection<PetitionResponse>> GetFilteredAsync(
         PetitionFilterRequest filter,
         CancellationToken cancellationToken = default)
     {
-        var petitions = await petitionRepository.GetPagedAsync(filter, cancellationToken);
-        var totalCount = await petitionRepository.CountAsync(filter, cancellationToken);
-        var responses = mapper.Map<IReadOnlyCollection<PetitionResponse>>(petitions);
+        var petitions = await petitionRepository.GetFilteredAsync(filter, cancellationToken);
 
-        return new PagedResponse<PetitionResponse>(
-            responses,
-            filter.PageNumber,
-            filter.PageSize,
-            totalCount);
+        return mapper.Map<IReadOnlyCollection<PetitionResponse>>(petitions);
     }
 
     public async Task<PetitionResponse> UpdateAsync(

@@ -10,14 +10,25 @@ public class MappingProfile : Profile
 {
     public MappingProfile()
     {
-        CreateMap<CreateStudentRequest, Student>();
+        CreateMap<CreateStudentRequest, Student>()
+            .ForMember(destination => destination.Id, options => options.Ignore())
+            .ForMember(destination => destination.CreatedAt, options => options.Ignore())
+            .ForMember(destination => destination.Petitions, options => options.Ignore());
 
         CreateMap<Student, StudentResponse>()
             .ForMember(
                 destination => destination.CreatedAt,
                 options => options.MapFrom(source => source.CreatedAt.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture)));
 
-        CreateMap<CreatePetitionRequest, Petition>();
+        CreateMap<CreatePetitionRequest, Petition>()
+            .ForMember(destination => destination.Id, options => options.Ignore())
+            .ForMember(destination => destination.Student, options => options.Ignore())
+            .ForMember(destination => destination.Status, options => options.Ignore())
+            .ForMember(destination => destination.CreatedAt, options => options.Ignore())
+            .ForMember(destination => destination.UpdatedAt, options => options.Ignore())
+            .ForMember(destination => destination.ReviewedBy, options => options.Ignore())
+            .ForMember(destination => destination.ReviewedAt, options => options.Ignore())
+            .ForMember(destination => destination.ReviewComment, options => options.Ignore());
 
         CreateMap<Petition, PetitionResponse>()
             .ForMember(

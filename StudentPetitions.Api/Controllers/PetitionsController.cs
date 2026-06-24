@@ -1,5 +1,4 @@
 using Microsoft.AspNetCore.Mvc;
-using StudentPetitions.Api.Models.Common;
 using StudentPetitions.Api.Models.Petitions;
 using StudentPetitions.Api.Services.Interfaces;
 
@@ -32,11 +31,11 @@ public class PetitionsController(IPetitionService petitionService) : ControllerB
     }
 
     [HttpGet]
-    public async Task<ActionResult<PagedResponse<PetitionResponse>>> GetPaged(
+    public async Task<ActionResult<IReadOnlyCollection<PetitionResponse>>> GetFiltered(
         [FromQuery] PetitionFilterRequest filter,
         CancellationToken cancellationToken)
     {
-        var petitions = await petitionService.GetPagedAsync(filter, cancellationToken);
+        var petitions = await petitionService.GetFilteredAsync(filter, cancellationToken);
 
         return Ok(petitions);
     }

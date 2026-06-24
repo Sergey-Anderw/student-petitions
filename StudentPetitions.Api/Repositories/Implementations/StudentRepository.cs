@@ -21,9 +21,8 @@ public class StudentRepository(AppDbContext dbContext) : IStudentRepository
     {
         return await dbContext.Students
             .AsNoTracking()
-            .OrderByDescending(student => student.CreatedAt)
-            .ThenBy(student => student.LastName)
-            .ThenBy(student => student.FirstName)
+            .OrderBy(student => student.CreatedAt)
+            .ThenBy(student => student.Id)
             .Skip((pageNumber - 1) * pageSize)
             .Take(pageSize)
             .ToListAsync(cancellationToken);
@@ -34,24 +33,29 @@ public class StudentRepository(AppDbContext dbContext) : IStudentRepository
         return await dbContext.Students.CountAsync(cancellationToken);
     }
 
-    public async Task<bool> ExistsByEmailAsync(string email, CancellationToken cancellationToken = default)
-    {
-        var normalizedEmail = email.Trim().ToLower();
-
-        return await dbContext.Students
-            .AsNoTracking()
-            .AnyAsync(student => student.Email.ToLower() == normalizedEmail, cancellationToken);
-    }
-
-    public async Task<bool> ExistsByStudentNumberAsync(
+    public async Task<(bool EmailExists, bool StudentNumberExists)> GetUniquenessConflictAsync(
+        string email,
         string studentNumber,
         CancellationToken cancellationToken = default)
     {
+        var normalizedEmail = email.Trim().ToLower();
         var normalizedStudentNumber = studentNumber.Trim();
 
-        return await dbContext.Students
+        var matches = await dbContext.Students
             .AsNoTracking()
-            .AnyAsync(student => student.StudentNumber == normalizedStudentNumber, cancellationToken);
+            .Where(student =>
+                student.Email.ToLower() == normalizedEmail ||
+                student.StudentNumber == normalizedStudentNumber)
+            .Select(student => new
+            {
+                EmailMatches = student.Email.ToLower() == normalizedEmail,
+                StudentNumberMatches = student.StudentNumber == normalizedStudentNumber
+            })
+            .ToListAsync(cancellationToken);
+
+        return (
+            matches.Any(match => match.EmailMatches),
+            matches.Any(match => match.StudentNumberMatches));
     }
 
     public async Task AddAsync(Student student, CancellationToken cancellationToken = default)

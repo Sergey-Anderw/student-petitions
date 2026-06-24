@@ -38,7 +38,7 @@ public static class ServiceCollectionExtensions
 
     public static IServiceCollection AddApplicationServices(this IServiceCollection services)
     {
-        services.AddAutoMapper(typeof(MappingProfile));
+        services.AddAutoMapper(_ => { }, typeof(MappingProfile).Assembly);
         services.AddScoped<IStudentRepository, StudentRepository>();
         services.AddScoped<IStudentService, StudentService>();
         services.AddScoped<IPetitionRepository, PetitionRepository>();
