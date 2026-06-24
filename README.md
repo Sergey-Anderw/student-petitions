@@ -79,7 +79,7 @@ Petitions create, get, list, draft update, submit, and review endpoints are impl
 - Review is allowed for Submitted petitions.
 - Review requires a review comment.
 - The review operation internally moves Submitted petitions to UnderReview before setting Approved or Rejected.
-- API date output should use `MM/dd/yyyy` format.
+- API response dates use `MM/dd/yyyy` format.
 
 ## Running Locally
 
@@ -117,3 +117,7 @@ Services return response DTOs directly on success. Expected API errors are repre
 `ExceptionHandlingMiddleware` maps these exceptions to `ErrorResponse`. The project does not use `Result<T>`, operation-specific service result records, `ProblemDetails`, or `IExceptionHandler`.
 
 DTO validation is handled by FluentValidation auto-validation. Invalid model state uses the default ASP.NET Core validation response.
+
+## Date Formatting
+
+API response date formatting is centralized in `DateFormats.ApiDate` and applied in AutoMapper response mappings. The database stores date values as `DateTime` / `DateTime?`, not formatted strings.

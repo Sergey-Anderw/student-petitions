@@ -1,6 +1,7 @@
 using System.Globalization;
 using AutoMapper;
 using StudentPetitions.Api.Entities;
+using StudentPetitions.Api.Models.Common;
 using StudentPetitions.Api.Models.Petitions;
 using StudentPetitions.Api.Models.Students;
 
@@ -18,7 +19,7 @@ public class MappingProfile : Profile
         CreateMap<Student, StudentResponse>()
             .ForMember(
                 destination => destination.CreatedAt,
-                options => options.MapFrom(source => source.CreatedAt.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture)));
+                options => options.MapFrom(source => source.CreatedAt.ToString(DateFormats.ApiDate, CultureInfo.InvariantCulture)));
 
         CreateMap<CreatePetitionRequest, Petition>()
             .ForMember(destination => destination.Id, options => options.Ignore())
@@ -33,14 +34,14 @@ public class MappingProfile : Profile
         CreateMap<Petition, PetitionResponse>()
             .ForMember(
                 destination => destination.CreatedAt,
-                options => options.MapFrom(source => source.CreatedAt.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture)))
+                options => options.MapFrom(source => source.CreatedAt.ToString(DateFormats.ApiDate, CultureInfo.InvariantCulture)))
             .ForMember(
                 destination => destination.UpdatedAt,
-                options => options.MapFrom(source => source.UpdatedAt.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture)))
+                options => options.MapFrom(source => source.UpdatedAt.ToString(DateFormats.ApiDate, CultureInfo.InvariantCulture)))
             .ForMember(
                 destination => destination.ReviewedAt,
                 options => options.MapFrom(source => source.ReviewedAt.HasValue
-                    ? source.ReviewedAt.Value.ToString("MM/dd/yyyy", CultureInfo.InvariantCulture)
+                    ? source.ReviewedAt.Value.ToString(DateFormats.ApiDate, CultureInfo.InvariantCulture)
                     : null));
     }
 }
