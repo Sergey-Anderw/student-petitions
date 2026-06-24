@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StudentPetitions.Api.Models.Common;
 using StudentPetitions.Api.Models.Students;
@@ -7,6 +8,7 @@ namespace StudentPetitions.Api.Controllers;
 
 [ApiController]
 [Route("api/students")]
+[Authorize(Roles = "Student,Reviewer")]
 public class StudentsController(IStudentService studentService) : ControllerBase
 {
     [HttpPost]

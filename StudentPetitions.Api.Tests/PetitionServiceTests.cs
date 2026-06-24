@@ -7,6 +7,7 @@ using StudentPetitions.Api.Infrastructure.Mapping;
 using StudentPetitions.Api.Models.Petitions;
 using StudentPetitions.Api.Repositories.Interfaces;
 using StudentPetitions.Api.Services.Implementations;
+using StudentPetitions.Api.Services.Interfaces;
 
 namespace StudentPetitions.Api.Tests;
 
@@ -14,6 +15,7 @@ public class PetitionServiceTests
 {
     private readonly Mock<IPetitionRepository> petitionRepository = new();
     private readonly Mock<IStudentRepository> studentRepository = new();
+    private readonly Mock<ICurrentUserService> currentUserService = new();
     private readonly IMapper mapper = CreateMapper();
 
     [Fact]
@@ -268,7 +270,11 @@ public class PetitionServiceTests
 
     private PetitionService CreateService()
     {
-        return new PetitionService(petitionRepository.Object, studentRepository.Object, mapper);
+        return new PetitionService(
+            petitionRepository.Object,
+            studentRepository.Object,
+            currentUserService.Object,
+            mapper);
     }
 
     private static IMapper CreateMapper()

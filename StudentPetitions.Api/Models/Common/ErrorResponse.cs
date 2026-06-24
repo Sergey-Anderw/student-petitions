@@ -15,6 +15,11 @@ public sealed record ErrorResponse(
         return new ErrorResponse(StatusCodes.Status409Conflict, "Conflict", detail);
     }
 
+    public static ErrorResponse Unauthorized(string detail)
+    {
+        return new ErrorResponse(StatusCodes.Status401Unauthorized, "Unauthorized", detail);
+    }
+
     public static ErrorResponse InternalServerError(string detail)
     {
         return new ErrorResponse(StatusCodes.Status500InternalServerError, "Server Error", detail);

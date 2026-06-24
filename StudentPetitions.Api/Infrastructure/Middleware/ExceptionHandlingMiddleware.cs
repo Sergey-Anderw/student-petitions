@@ -35,6 +35,7 @@ public sealed class ExceptionHandlingMiddleware
             NotFoundException => ErrorResponse.NotFound(exception.Message),
             ConflictException => ErrorResponse.Conflict(exception.Message),
             BusinessRuleException => ErrorResponse.Conflict(exception.Message),
+            UnauthorizedException => ErrorResponse.Unauthorized(exception.Message),
             _ => ErrorResponse.InternalServerError("An unexpected error occurred.")
         };
 

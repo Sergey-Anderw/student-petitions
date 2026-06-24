@@ -1,13 +1,39 @@
 using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
+using StudentPetitions.Api.Models.Auth;
 using StudentPetitions.Api.Models.Common;
 using StudentPetitions.Api.Models.Students;
 
 namespace StudentPetitions.Api.Tests;
 
-public class StudentsApiTests(StudentPetitionsApiFactory factory) : IClassFixture<StudentPetitionsApiFactory>
+public class StudentsApiTests(StudentPetitionsApiFactory factory) :
+    IClassFixture<StudentPetitionsApiFactory>,
+    IAsyncLifetime
 {
     private readonly HttpClient client = factory.CreateClient();
+
+    public async Task InitializeAsync()
+    {
+        var response = await client.PostAsJsonAsync("/api/auth/login", new LoginRequest
+        {
+            Username = "reviewer",
+            Password = "reviewer123"
+        });
+        var login = await response.Content.ReadFromJsonAsync<LoginResponse>();
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.NotNull(login);
+
+        client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(
+            login.TokenType,
+            login.AccessToken);
+    }
+
+    public Task DisposeAsync()
+    {
+        return Task.CompletedTask;
+    }
 
     [Fact]
     public async Task PostStudents_CreatesStudent()

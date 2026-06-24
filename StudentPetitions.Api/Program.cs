@@ -7,6 +7,7 @@ builder.Services
     .AddApiControllers()
     .AddPersistence(builder.Configuration)
     .AddApplicationServices()
+    .AddJwtAuthentication(builder.Configuration)
     .AddApiDocumentation();
 
 var app = builder.Build();
@@ -16,6 +17,8 @@ app.UseApiDocumentation();
 app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 app.UseHttpsRedirection();
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 

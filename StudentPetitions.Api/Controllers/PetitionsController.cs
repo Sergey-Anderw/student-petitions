@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using StudentPetitions.Api.Models.Petitions;
 using StudentPetitions.Api.Services.Interfaces;
@@ -9,6 +10,7 @@ namespace StudentPetitions.Api.Controllers;
 public class PetitionsController(IPetitionService petitionService) : ControllerBase
 {
     [HttpPost]
+    [Authorize(Roles = "Student")]
     public async Task<ActionResult<PetitionResponse>> Create(
         [FromBody]
         CreatePetitionRequest request,
@@ -23,6 +25,7 @@ public class PetitionsController(IPetitionService petitionService) : ControllerB
     }
 
     [HttpGet("{id:guid}")]
+    [Authorize(Roles = "Student,Reviewer")]
     public async Task<ActionResult<PetitionResponse>> GetById(Guid id, CancellationToken cancellationToken)
     {
         var petition = await petitionService.GetByIdAsync(id, cancellationToken);
@@ -31,6 +34,7 @@ public class PetitionsController(IPetitionService petitionService) : ControllerB
     }
 
     [HttpGet]
+    [Authorize(Roles = "Student,Reviewer")]
     public async Task<ActionResult<IReadOnlyCollection<PetitionResponse>>> GetFiltered(
         [FromQuery] PetitionFilterRequest filter,
         CancellationToken cancellationToken)
@@ -41,6 +45,7 @@ public class PetitionsController(IPetitionService petitionService) : ControllerB
     }
 
     [HttpPut("{id:guid}")]
+    [Authorize(Roles = "Student")]
     public async Task<ActionResult<PetitionResponse>> Update(
         Guid id,
         [FromBody]
@@ -53,6 +58,7 @@ public class PetitionsController(IPetitionService petitionService) : ControllerB
     }
 
     [HttpPost("{id:guid}/submit")]
+    [Authorize(Roles = "Student")]
     public async Task<ActionResult<PetitionResponse>> Submit(Guid id, CancellationToken cancellationToken)
     {
         var petition = await petitionService.SubmitAsync(id, cancellationToken);
@@ -61,6 +67,7 @@ public class PetitionsController(IPetitionService petitionService) : ControllerB
     }
 
     [HttpPost("{id:guid}/review")]
+    [Authorize(Roles = "Reviewer")]
     public async Task<ActionResult<PetitionResponse>> Review(
         Guid id,
         [FromBody]

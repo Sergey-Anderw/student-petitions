@@ -10,6 +10,7 @@ A REST API for managing student petitions such as course retakes, academic leave
 - Petition lookup, listing, and filtering
 - Draft-only petition updates
 - Petition submission and review workflow
+- JWT authentication with demo users and roles
 - Swagger API documentation
 - Application exception handling middleware
 
@@ -24,6 +25,7 @@ A REST API for managing student petitions such as course retakes, academic leave
 - Repository Pattern
 - AutoMapper
 - FluentValidation
+- JWT Bearer authentication
 - Global exception handling middleware returning `ErrorResponse`
 - Swagger / OpenAPI
 
@@ -104,7 +106,22 @@ dotnet ef database update --project StudentPetitions.Api --startup-project Stude
 
 ## Authentication
 
-JWT authentication is planned as an optional enhancement if included during implementation.
+JWT authentication is implemented with hardcoded demo users for the test assignment. This is not production authentication.
+
+Login endpoint:
+
+- `POST /api/auth/login`
+
+Demo users:
+
+- `student` / `student123` - role `Student`
+- `reviewer` / `reviewer123` - role `Reviewer`
+
+Role rules:
+
+- Students can create, update, submit, and view only their own petitions.
+- Reviewers can view and review petitions.
+- Swagger supports the `Authorize` button. Use the returned token as a Bearer token.
 
 ## Error Handling
 

@@ -10,6 +10,7 @@ namespace StudentPetitions.Api.Services.Implementations;
 public class PetitionService(
     IPetitionRepository petitionRepository,
     IStudentRepository studentRepository,
+    ICurrentUserService currentUserService,
     IMapper mapper)
     : IPetitionService
 {
@@ -17,6 +18,8 @@ public class PetitionService(
         CreatePetitionRequest request,
         CancellationToken cancellationToken = default)
     {
+        EnsureStudentCanAccessStudent(request.StudentId, "Students can create petitions only for themselves.");
+
         var student = await studentRepository.GetByIdAsync(request.StudentId, cancellationToken);
 
         if (student is null)
@@ -45,6 +48,8 @@ public class PetitionService(
             throw new NotFoundException("Petition was not found.");
         }
 
+        EnsureStudentCanAccessPetition(petition);
+
         return mapper.Map<PetitionResponse>(petition);
     }
 
@@ -52,6 +57,11 @@ public class PetitionService(
         PetitionFilterRequest filter,
         CancellationToken cancellationToken = default)
     {
+        if (currentUserService.IsStudent)
+        {
+            filter.StudentId = currentUserService.StudentId;
+        }
+
         var petitions = await petitionRepository.GetFilteredAsync(filter, cancellationToken);
 
         return mapper.Map<IReadOnlyCollection<PetitionResponse>>(petitions);
@@ -68,6 +78,8 @@ public class PetitionService(
         {
             throw new NotFoundException("Petition was not found.");
         }
+
+        EnsureStudentCanAccessPetition(petition);
 
         if (petition.Status != PetitionStatus.Draft)
         {
@@ -94,6 +106,8 @@ public class PetitionService(
         {
             throw new NotFoundException("Petition was not found.");
         }
+
+        EnsureStudentCanAccessPetition(petition);
 
         if (petition.Status != PetitionStatus.Draft)
         {
@@ -146,5 +160,31 @@ public class PetitionService(
         await petitionRepository.SaveChangesAsync(cancellationToken);
 
         return mapper.Map<PetitionResponse>(petition);
+    }
+
+    private void EnsureStudentCanAccessStudent(Guid studentId, string errorMessage)
+    {
+        if (!currentUserService.IsStudent)
+        {
+            return;
+        }
+
+        if (currentUserService.StudentId != studentId)
+        {
+            throw new BusinessRuleException(errorMessage);
+        }
+    }
+
+    private void EnsureStudentCanAccessPetition(Petition petition)
+    {
+        if (!currentUserService.IsStudent)
+        {
+            return;
+        }
+
+        if (currentUserService.StudentId != petition.StudentId)
+        {
+            throw new NotFoundException("Petition was not found.");
+        }
     }
 }
